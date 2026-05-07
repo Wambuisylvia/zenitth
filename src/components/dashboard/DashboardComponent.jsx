@@ -707,20 +707,103 @@ const DashboardComponent = () => {
 )}
 
 
-                {activeTab === 'personal' && (
-                    <div className="tab-section-container">
-                        <div className="mini-nav-bar" style={{ display: 'flex', justifyContent: 'center', gap: '10px' }}>
-                            <button className={devTab === 'podcasts' ? 'mini-link active' : 'mini-link'} onClick={() => setDevTab('podcasts')}>Podcasts</button>
-                            <button className={devTab === 'books' ? 'mini-link active' : 'mini-link'} onClick={() => setDevTab('books')}>Books</button>
-                            <button className={devTab === 'courses' ? 'mini-link active' : 'mini-link'} onClick={() => setDevTab('courses')}>Courses</button>
-                        </div>
-                        <div className="content-grid" style={{ background: 'rgba(30, 41, 59, 0.5)', padding: '30px', borderRadius: '20px', marginTop: '20px' }}>
-                            {devTab === 'podcasts' && <LearningCard title="Top Financiers" type="PODCAST" description="Insights..." action="Listen Now" />}
-                            {devTab === 'books' && <LearningCard title="Investment Hacks" type="BOOK" description="Guide..." action="Read Now" />}
-                            {devTab === 'courses' && <LearningCard title="Debt Advice" type="COURSE" description="Master..." action="Start Learning" />}
-                        </div>
-                    </div>
-                )}
+    {activeTab === 'personal' && (
+  <div style={{ marginTop: '20px', width: '100%' }}>
+    
+    {/* FLAT UNDERLINED NAVBAR */}
+    <div style={{ 
+      display: 'flex', 
+      justifyContent: 'center', 
+      gap: '40px', 
+      marginBottom: '30px',
+      borderBottom: '1px solid rgba(255, 255, 255, 0.1)', 
+      paddingBottom: '10px'
+    }}>
+      {['podcasts', 'lessons', 'advice'].map((tab) => (
+        <div key={tab} style={{ position: 'relative' }}>
+          <button
+            onClick={() => setDevTab(tab)}
+            style={{
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              fontSize: '15px',
+              padding: '8px 5px',
+              transition: 'all 0.3s ease',
+              color: devTab === tab ? '#ffffff' : '#64748b',
+              fontWeight: devTab === tab ? '600' : '400',
+              outline: 'none',
+              textTransform: 'capitalize'
+            }}
+          >
+            {/* Displaying friendly names for the tabs */}
+            {tab === 'advice' ? 'Quick Advice' : tab}
+          </button>
+          
+          {/* Glowing Underline Indicator */}
+          {devTab === tab && (
+            <div style={{
+              position: 'absolute',
+              bottom: '-11px',
+              left: 0,
+              right: 0,
+              height: '2px',
+              backgroundColor: '#3b82f6',
+              boxShadow: '0px 0px 10px #3b82f6',
+              borderRadius: '2px'
+            }} />
+          )}
+        </div>
+      ))}
+    </div>
+
+    {/* CONTENT AREA */}
+   <div className="content-area">
+  {devTab === 'podcasts' && (
+    <LearningCard 
+      type="PODCAST" 
+      title="The Wealth Mindset" 
+      description="Learn how the top 1% think about saving." 
+      action="Listen Now" 
+    />
+  )}
+
+  {devTab === 'lessons' && (
+  <div style={{ display: 'flex', flexDirection: 'column' }}>
+    <LearningCard 
+      type="BUDGETING" 
+      title="The 50/30/20 Rule" 
+      description="The gold standard for effortless budgeting. Learn how to split your income without feeling restricted." 
+      action="Start Lesson" 
+    />
+    
+    <LearningCard 
+      type="SAVING" 
+      title="Saving Strategies" 
+      description="From 'Round-ups' to 'Save-first' methods. Find the psychological trick that works for your personality." 
+      action="View Strategy" 
+    />
+    
+    <LearningCard 
+      type="INVESTING" 
+      title="Beginner Investing" 
+      description="Don't let the jargon scare you. Learn how to buy your first asset and start your compound interest journey." 
+      action="Explore Basics" 
+    />
+  </div>
+)}
+
+  {devTab === 'advice' && (
+    <LearningCard 
+      type="QUICK ADVICE" 
+      title="Emergency Fund 101" 
+      description="Why you need 3 months of expenses saved today." 
+      action="Get Tip" 
+    />
+  )}
+</div>
+  </div>
+)}
 
                 {activeTab === 'zeni' && (
                     <div style={{ height: '80vh', background: 'rgba(19, 31, 36, 0.8)', borderRadius: '24px', padding: '30px' }}>

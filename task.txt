@@ -1,0 +1,2 @@
+signup api - signup component
+add goal api - dashboard component

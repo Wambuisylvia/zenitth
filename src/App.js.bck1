@@ -1,0 +1,305 @@
+import React, { useState, useEffect } from 'react';
+import './App.css';
+
+import LearningCard from './components/learning/LearningCard';
+import TrackingPulse from './components/tracking/TrackingPulse';
+import SavingCard from './components/savings/SavingCard';
+import ZeniBot from './components/chat/ZeniBot';
+
+import Progress from './components/goals/Progress';
+import GoalsCard from './components/goals/GoalsCard';
+import GoalsForm from './components/goals/GoalsForm';
+import GoalsList from './components/goals/GoalsList';
+
+const Login = ({ onLogin }) => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (email && password) onLogin();
+  };
+
+  return (
+    <div className="login-screen">
+      <div className="login-card">
+        <h1 className="zenith-logo">ZENITH</h1>
+
+        <form onSubmit={handleSubmit} className="login-form">
+          <input
+            type="text"
+            placeholder="Email or username"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+          <div className="password-wrapper">
+            <input
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+            <span className="forgot-link">FORGOT?</span>
+          </div>
+          <button type="submit" className="unlock-btn">UNLOCK ACCESS</button>
+        </form>
+
+        <p className="signup-text">
+          Don't have an account? <span className="highlight">SIGN UP</span>
+        </p>
+
+        <div className="divider">
+          <hr /><span>OR CONNECT WITH</span><hr />
+        </div>
+
+        <div className="social-grid">
+          <button className="social-btn google">GOOGLE</button>
+          <button className="social-btn facebook">FACEBOOK</button>
+          <button className="social-btn instagram">INSTAGRAM</button>
+          <button className="social-btn tiktok">TIKTOK</button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+function App() {
+  const [splash, setSplash] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState(true);
+  const [activeTab, setActiveTab] = useState('dashboard');
+  const [devTab, setDevTab] = useState('podcasts');
+  const [trackTab, setTrackTab] = useState('momentum');
+  const [savingsFilter, setSavingsFilter] = useState('free');
+  const [goalsView, setGoalsView] = useState('progress');
+  const [selectedGoalId, setSelectedGoalId] = useState(null);
+
+  const [goals, setGoals] = useState([
+    { id: 1, title: 'Emergency Fund', current: 1200, target: 5000 },
+    { id: 2, title: 'New Laptop', current: 800, target: 2000 },
+    { id: 3, title: 'Vacation', current: 300, target: 1500 }
+  ]);
+
+  const [history, setHistory] = useState([]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setSplash(false), 3000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const totalSaved = goals.reduce((a, b) => a + b.current, 0);
+
+  const handleAddGoal = (newGoal) => {
+    const goalToAdd = {
+      ...newGoal,
+      id: Date.now(),
+      current: 0,
+      color: '#1cb0f6',
+      mode: 'normal',
+      withdrawal_allowed: true
+    };
+    setGoals([...goals, goalToAdd]);
+  };
+
+  const handleUpdateGoal = (id, updates) => {
+    setGoals(goals.map(g => g.id === id ? { ...g, ...updates } : g));
+  };
+
+  const handleStash = (goalId, amount) => {
+    if (!amount || amount <= 0) return;
+    const newLog = {
+      id: Date.now(),
+      date: new Date().toLocaleDateString(),
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      goalTitle: goals.find(g => g.id === goalId)?.title,
+      amount: parseInt(amount)
+    };
+    setHistory([newLog, ...history]);
+    setGoals(goals.map(g =>
+      g.id === goalId ? { ...g, current: g.current + parseInt(amount) } : g
+    ));
+  };
+
+  const handleWithdraw = (goalId, amount) => {
+    setGoals(goals.map(g =>
+      g.id === goalId ? { ...g, current: Math.max(0, g.current - parseInt(amount)) } : g
+    ));
+  };
+
+  const filteredGoals = goals.filter(goal => {
+    const today = new Date().toISOString().split('T')[0];
+    const isLocked = goal.mode === 'locked' && goal.lock_end_date > today;
+    if (savingsFilter === 'locked') return isLocked;
+    if (savingsFilter === 'free') return !isLocked;
+    return true;
+  });
+
+  if (splash) {
+    return (
+      <div className="splash-screen">
+        <img src="/splash.jpg" alt="Zenith Splash" className="splash-image" />
+        <p className="splash-text">INITIALIZING VAULT...</p>
+      </div>
+    );
+  }
+
+  if (!isLoggedIn) return <Login onLogin={() => setIsLoggedIn(true)} />;
+
+  return (
+    <div className="app-container">
+      {/* SIDEBAR */}
+      <aside className="sidebar">
+        <div className="sidebar-top">
+          <div className="user-profile">
+            <div className="profile-icon">S</div>
+            <div className="profile-info">
+              <p className="profile-name">Sylvia</p>
+              <span className="profile-status">Zenith Pro</span>
+            </div>
+          </div>
+
+          <div className="brand">ZENITH</div>
+
+          <nav className="sidebar-nav">
+            <button className={`nav-btn ${activeTab === 'dashboard' ? 'active' : ''}`} onClick={() => setActiveTab('dashboard')}>Dashboard</button>
+            <button className={`nav-btn ${activeTab === 'savings' ? 'active' : ''}`} onClick={() => setActiveTab('savings')}>Savings</button>
+            <button className={`nav-btn ${activeTab === 'goals' ? 'active' : ''}`} onClick={() => setActiveTab('goals')}>Goals & Progress</button>
+            <button className={`nav-btn ${activeTab === 'tracking' ? 'active' : ''}`} onClick={() => setActiveTab('tracking')}>Tracking Pulse</button>
+            <button className={`nav-btn ${activeTab === 'personal' ? 'active' : ''}`} onClick={() => setActiveTab('personal')}>Personal Development</button>
+            <button className={`nav-btn ${activeTab === 'zeni' ? 'active' : ''}`} onClick={() => setActiveTab('zeni')}>💬 Zeni AI Coach</button>
+          </nav>
+        </div>
+
+        <div className="sidebar-footer">
+          <div className="footer-item"><span>👤</span> Profile</div>
+          <div className="footer-item"><span>⚙️</span> Settings</div>
+          <div className="footer-item"><span>❓</span> Help</div>
+          <button className="logout-btn" onClick={() => setIsLoggedIn(false)}>Logout 🔒</button>
+        </div>
+      </aside>
+
+      {/* MAIN CONTENT */}
+      <main className="main-content">
+        {/* Dashboard */}
+        {activeTab === 'dashboard' && (
+          <div className="dashboard-view">
+            <div className="stats-grid">
+              <div className="stat-card">
+                <div>
+                  <span className="stat-label">Total Stashed</span>
+                  <h1 className="total-amount">${totalSaved.toLocaleString()}</h1>
+                </div>
+                {/* Quick stash buttons */}
+                <div className="quick-stash">
+                  {[10, 50, 100].map(amount => (
+                    <button key={amount} onClick={() => handleStash(goals[0]?.id, amount)} className="quick-btn">
+                      +${amount}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div className="card-row">
+              <LearningCard title="Quick Deposit" type="Action" description="Add funds instantly." action="Deposit" />
+            </div>
+          </div>
+        )}
+
+        {/* Savings Tab */}
+        {activeTab === 'savings' && (
+          <div className="savings-section">
+            <div className="savings-header">
+              <p className="access-tag">Authorized Access • Sylvia</p>
+              <h1 className="objective-title">OBJECTIVE CENTRE</h1>
+              <p className="system-status">SYSTEM STATUS: <span>OPTIMIZED</span></p>
+            </div>
+
+            <div className="mini-nav-bar">
+              <button className={savingsFilter === 'free' ? 'mini-link active' : 'mini-link'} onClick={() => setSavingsFilter('free')}>🔓 Free</button>
+              <button className={savingsFilter === 'locked' ? 'mini-link active' : 'mini-link'} onClick={() => setSavingsFilter('locked')}>🔒 Locked</button>
+              <button className="quick-stash-btn" onClick={() => handleStash(goals[0]?.id, 100)}>⚡ Quick Stash (+$100)</button>
+            </div>
+
+            <div className="goals-grid">
+              {filteredGoals.map(goal => (
+                <SavingCard
+                  key={goal.id}
+                  goal={goal}
+                  onStash={handleStash}
+                  onWithdraw={handleWithdraw}
+                  onUpdateGoal={handleUpdateGoal}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Goals Tab */}
+        {activeTab === 'goals' && (
+          <div className="goals-view-wrapper">
+            <nav className="goals-nav">
+              {['progress', 'form', 'list', 'card'].map((id) => (
+                <button
+                  key={id}
+                  className={`laser-item ${goalsView === id ? 'active' : ''}`}
+                  onClick={() => setGoalsView(id)}
+                >
+                  {id === 'progress' ? 'Progress' : id === 'form' ? 'Goals Form' : id === 'list' ? 'Goals List' : 'Goals Card'}
+                </button>
+              ))}
+            </nav>
+
+            <div className="goals-content-centered">
+              {goalsView === 'progress' && <Progress goals={goals} totalSaved={totalSaved} totalTarget={goals.reduce((a, b) => a + b.target, 0)} />}
+
+              {goalsView === 'form' && <GoalsForm onAddGoal={handleAddGoal} />}
+
+              {goalsView === 'list' && <GoalsList goals={goals} setGoals={setGoals} />}
+
+              {goalsView === 'card' && (
+                <GoalsCard
+                  goals={goals}
+                  selectedGoalId={selectedGoalId}
+                  setSelectedGoalId={setSelectedGoalId}
+                  onUpdateGoal={handleUpdateGoal}
+                />
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Other Tabs */}
+        {activeTab === 'tracking' && <TrackingPulse trackTab={trackTab} setTrackTab={setTrackTab} />}
+
+        {activeTab === 'personal' && (
+          <div className="personal-section">
+            <div className="mini-nav-bar">
+              <button className={devTab === 'podcasts' ? 'mini-link active' : 'mini-link'} onClick={() => setDevTab('podcasts')}>Podcasts</button>
+              <button className={devTab === 'books' ? 'mini-link active' : 'mini-link'} onClick={() => setDevTab('books')}>Books</button>
+              <button className={devTab === 'courses' ? 'mini-link active' : 'mini-link'} onClick={() => setDevTab('courses')}>Courses</button>
+            </div>
+            <div className="content-grid">
+              {devTab === 'podcasts' && <LearningCard title="Top Financiers" type="PODCAST" />}
+              {devTab === 'books' && <LearningCard title="Investment Hacks" type="BOOK" />}
+              {devTab === 'courses' && <LearningCard title="Debt Advice" type="COURSE" />}
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'zeni' && (
+          <div className="zeni-container">
+            <ZeniBot goals={goals} totalSaved={totalSaved} />
+          </div>
+        )}
+      </main>
+
+      {/* Floating Chat Button */}
+      <div className="floating-chat-btn" onClick={() => setActiveTab('zeni')}>
+        💬
+      </div>
+    </div>
+  );
+}
+
+export default App;

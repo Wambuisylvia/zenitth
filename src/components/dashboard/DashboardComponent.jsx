@@ -1,13 +1,13 @@
 
-import ZeniBot from './../chat/ZeniBot';
+// import ZeniBot from './../chat/ZeniBot';
 import LearningCard from './../learning/LearningCard';
 import TrackingPulse from './../tracking/TrackingPulse';
 import SavingCard from './../savings/SavingCard';
 import { useEffect, useState } from 'react';
 import Progress from './../goals/Progress';
-import GoalsCard from './../goals/GoalsCard';
-import GoalsForm from './../goals/GoalsForm';
-import GoalsList from './../goals/GoalsList';
+// import GoalsCard from './../goals/GoalsCard';
+// import GoalsForm from './../goals/GoalsForm';
+// import GoalsList from './../goals/GoalsList';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { toast, ToastContainer } from "react-toastify";
@@ -15,7 +15,11 @@ import "react-toastify/dist/ReactToastify.css";
 import Momentum from './../tracking/Momentum';
 import Alerts from './../tracking/Alerts';
 import Milestones from './../tracking/Milestones';
-
+import ZeniBot from '../chat/ZenithBot';
+import PodcastCard from '../learning/PodcastCard';
+import UserProfile from '../auth/UserProfile';
+import MpesaModal from '../learning/MpesaModal';
+import AboutUs from '../AboutUs';
 
 
 const DashboardComponent = () => {
@@ -28,7 +32,7 @@ const DashboardComponent = () => {
     const [devTab, setDevTab] = useState('podcasts');
     const [trackTab, setTrackTab] = useState('momentum');
     const [savingsFilter, setSavingsFilter] = useState('free');
-    const [history, setHistory] = useState([]);
+    // const [history, setHistory] = useState([]);
 
     const [goal_title, setGoalTitle] = useState("")
     const [target_amount, setTargetAmount] = useState(0)
@@ -36,19 +40,16 @@ const DashboardComponent = () => {
     const [mode, setMode] = useState("")
 
     const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-
-    const [loading, setLoading] = useState(false);
-    const [success, setSuccess] = useState('');
-    const [error, setError] = useState('');
     const [user, setUser] = useState({})
     const [goals, setGoals] = useState([]);
     const [selectedGoalId, setSelectedGoalId] = useState(null);
 
+    const [open, setOpen] = useState(false);
+
 
     useEffect(() => {
         let user = JSON.parse(localStorage.getItem("user"))
-        console.log(user)
+        // console.log(user)
 
         if (user && user !== null) {
             setIsLoggedIn(true)
@@ -58,11 +59,11 @@ const DashboardComponent = () => {
 
     // function to fetch goals
     const getGoals = async () => {
-        console.log(user.id)
+        // console.log(user.id)
         try {
             if (user) {
-                const response = await axios.get(`http://127.0.0.1:5000/api/goals/${user.id}`)
-                console.log(response)
+                const response = await axios.get(`https://sylviawambuu.alwaysdata.net/api/goals/${user.id}`)
+                // console.log(response)
                 if (response.status === 200) {
                     setGoals(response.data)
                 }
@@ -71,7 +72,7 @@ const DashboardComponent = () => {
 
         }
     }
-    console.log(goals)
+    // console.log(goals)
 
     // useEffect to fetch goas from db
     useEffect(() => {
@@ -87,7 +88,7 @@ const DashboardComponent = () => {
         }, 2000);
 
         return () => clearTimeout(timer); // Cleanup timer on unmount
-    }, []);
+    });
     const navigate = useNavigate()
 
     const handleAddGoal = async (e) => {
@@ -96,7 +97,7 @@ const DashboardComponent = () => {
         // setLoading(true)
         // setError("")
         // setSuccess("")
-        
+
         const loadingToast = toast.loading("Please wait...");
 
         try {
@@ -108,17 +109,17 @@ const DashboardComponent = () => {
             goal_data.append("target_date", "")
             goal_data.append("initial_stash", initial_stash)
             goal_data.append("mode", mode)
-            const response = await axios.post("http://127.0.0.1:5000/api/add_goal", goal_data)
-            console.log(response)
+            const response = await axios.post("https://sylviawambuu.alwaysdata.net/api/add_goal", goal_data)
+            // console.log(response)
             if (response.status === 200) {
 
                 toast.update(loadingToast, {
-      render: response.data.success,
-      type: "success",
-      isLoading: false,
-      autoClose: 3000,
-      closeButton: false
-    });
+                    render: response.data.success,
+                    type: "success",
+                    isLoading: false,
+                    autoClose: 3000,
+                    closeButton: false
+                });
                 getGoals()
             }
         } catch (error) {
@@ -128,13 +129,14 @@ const DashboardComponent = () => {
 
     const handleStash = async (goalId, amount) => {
         // setLoading(true)
+        // console.log(goalId, amount)
         const loadingToast = toast.loading("Please wait...");
         try {
             const stash_data = new FormData()
             stash_data.append("amount", amount)
             stash_data.append("goal_id", goalId)
 
-            const response = await axios.post('http://127.0.0.1:5000/api/stash', stash_data);
+            const response = await axios.post('https://sylviawambuu.alwaysdata.net/api/stash', stash_data);
             if (response.status === 200) {
                 toast.update(loadingToast, {
                     render: response.data.success,
@@ -170,7 +172,7 @@ const DashboardComponent = () => {
     };
 
     const filteredGoals = goals.filter(goal => {
-        const today = new Date().toISOString().split('T')[0];
+        // const today = new Date().toISOString().split('T')[0];
         const isLocked = goal.mode === 'locked';// && goal.lock_end_date > today;
         if (savingsFilter === 'locked') return isLocked;
         if (savingsFilter === 'free') return !isLocked;
@@ -182,6 +184,7 @@ const DashboardComponent = () => {
         console.log("Updating goal:", goalId, newData);
         // Add your logic here to update the state or call an API
     };
+
 
     if (splash) {
         return (
@@ -195,30 +198,34 @@ const DashboardComponent = () => {
     if (!isLoggedIn) return navigate("/login");
     return (
         <div className="app-container" style={{ display: 'flex', minHeight: '100vh', background: '#0a1014' }}>
-            <aside className="sidebar" style={{ display: 'flex', flexDirection: 'column', padding: '30px 20px', justifyContent: 'space-between', height: '100vh', background: '#131f24', position: 'sticky', top: 0 }}>
+            <aside className="sidebar" style={{ display: 'flex', flexDirection: 'column', padding: '30px 20px', justifyContent: 'space-between', height: '100vh', background: '#131f24', position: 'sticky', top: 0 }}
+            >
                 <div>
                     <div className="user-profile" style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '15px' }}>
-                        <div className="profile-icon" style={{ width: '32px', height: '32px', fontSize: '0.9rem', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#3b82f6', color: 'white' }}>S</div>
+                        <div className="profile-icon" style={{ width: '32px', height: '32px', fontSize: '0.9rem', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#3b82f6', color: 'white' }}>{user ? user.first_name?.[0].toUpperCase() : "Z"}</div>
                         <div className="profile-info">
-                            <p className="profile-name" style={{ margin: 0, fontSize: '0.9rem', fontWeight: 'bold', color: 'white' }}>Sylvia</p>
+                            <p className="profile-name" style={{ margin: 0, fontSize: '0.9rem', fontWeight: 'bold', color: 'white' }}>{user.first_name} {user.last_name}</p>
                             <span className="profile-status" style={{ fontSize: '0.75rem', opacity: 0.7, color: '#94a3b8' }}>Zenith Pro</span>
                         </div>
                     </div>
-                    <div className="brand" style={{ margin: '20px 0 40px 0', fontSize: '1.8rem', fontWeight: '900', letterSpacing: '4px', color: 'white' }}>ZENITH</div>
+                    <div className="brand" style={{ margin: '20px 0 40px 0', fontSize: '1.8rem', fontWeight: '900', letterSpacing: '4px', color: 'white' }}>ZENITH </div>
                     <nav className="nav-links" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                        <button style={activeTab === 'dashboard' ? activeStyle : {}} onClick={() => setActiveTab('dashboard')}>Dashboard</button>
-                        <button style={activeTab === 'savings' ? activeStyle : {}} onClick={() => setActiveTab('savings')}>Savings</button>
-                        <button style={activeTab === 'goals' ? activeStyle : {}} onClick={() => setActiveTab('goals')}>Goals & Progress</button>
-                        <button style={activeTab === 'tracking' ? activeStyle : {}} onClick={() => setActiveTab('tracking')}>Tracking Pulse</button>
-                        <button style={activeTab === 'personal' ? activeStyle : {}} onClick={() => setActiveTab('personal')}>Personal Development</button>
+                        <button style={activeTab === 'dashboard' ? activeStyle : {}} onClick={() => setActiveTab('dashboard')}>Dashboard📊</button>
+                        <button style={activeTab === 'savings' ? activeStyle : {}} onClick={() => setActiveTab('savings')}>Savings🐷</button>
+                        <button style={activeTab === 'goals' ? activeStyle : {}} onClick={() => setActiveTab('goals')}>Goals & Progress🎯 </button>
+                        <button style={activeTab === 'tracking' ? activeStyle : {}} onClick={() => setActiveTab('tracking')}>Tracking Pulse📈</button>
+                        <button style={activeTab === 'personal' ? activeStyle : {}} onClick={() => setActiveTab('personal')}>Financial Learning🏦</button>
+                         <button style={activeTab === 'about us' ? activeStyle : {}} onClick={() => setActiveTab('about')}>AboutUs📜</button>
+
                         <button style={activeTab === 'zeni' ? activeStyle : { color: '#1cb0f6', fontWeight: 'bold', background: 'none', border: 'none', textAlign: 'left', cursor: 'pointer', padding: '10px 0' }} onClick={() => setActiveTab('zeni')}>💬 Zeni AI Coach</button>
+                        
                     </nav>
                 </div>
                 <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '20px', display: 'flex', flexDirection: 'column', gap: '18px' }}>
-                    <div style={footerItemStyle}><span style={iconStyle}>👤</span> Profile</div>
-                    <div style={footerItemStyle}><span style={iconStyle}>⚙️</span> Settings</div>
-                    <div style={footerItemStyle}><span style={iconStyle}>❓</span> Help</div>
-                    <button onClick={handleLogout} style={{ marginTop: '10px', color: '#ef4444', background: 'none', border: 'none', textAlign: 'left', cursor: 'pointer', paddingLeft: '0', fontSize: '0.9rem', fontWeight: 'bold' }}>Logout 🔒</button>
+                    <div style={footerItemStyle} onClick={() => setActiveTab('profile')}><span style={iconStyle}>👤</span> Profile</div>
+                    {/* <div style={footerItemStyle}><span style={iconStyle}>⚙️</span> Settings</div> */}
+                    <div style={footerItemStyle} onClick={() => setActiveTab('zeni')}><span style={iconStyle}>❓</span> Help</div>
+                    <button onClick={handleLogout} style={{ marginTop: '10px', marginBottom: '20px', color: '#ef4444', background: 'none', border: 'none', textAlign: 'left', cursor: 'pointer', paddingLeft: '0', fontSize: '0.9rem', fontWeight: 'bold' }}>Logout 🔒</button>
                 </div>
             </aside>
 
@@ -234,32 +241,311 @@ const DashboardComponent = () => {
                         fontSize: "0.9rem",
                         backdropFilter: "blur(10px)"
                     }}
-                    />
-                
+                />
+
                 {activeTab === 'dashboard' && (
                     <div className="dashboard-view">
-                        <div className="stats-grid">
-                            <div className="stat-card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <div>
-                                    <span style={{ color: '#94a3b8' }}>Total Stashed</span>
-                                    <h1 style={{ color: 'white' }}>${goals.reduce((a, b) => a + parseFloat(b.current_amount), 0).toLocaleString()}</h1>
-                                </div>
-                                <div style={{ background: 'rgba(255,255,255,0.05)', padding: '15px', borderRadius: '15px', textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px' }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                        <p style={{ fontSize: '0.7rem', color: '#94a3b8', margin: 0 }}>Smart Stash</p>
-                                        <span title="Quick Save" style={infoIconStyle}>i</span>
+
+                        {/* TOP STATS */}
+
+                        <div
+                            style={{
+                                display: 'grid',
+                                gridTemplateColumns: 'repeat(4, minmax(0, 1fr))',
+                                gap: '20px'
+                            }}
+                        >
+
+                            {/* SAVINGS CARD */}
+                            <div style={styles.gradientCardBlue}>
+
+                                <div style={styles.cardTop}>
+
+                                    <div>
+                                        <p style={styles.cardLabel}>
+                                            Total Savings
+                                        </p>
+
+                                        <h1 style={styles.cardValue}>
+                                            $
+                                            {goals
+                                                .reduce(
+                                                    (a, b) =>
+                                                        a +
+                                                        parseFloat(
+                                                            b.current_amount
+                                                        ),
+                                                    0
+                                                )
+                                                .toLocaleString()}
+                                        </h1>
                                     </div>
-                                    <div style={{ display: 'flex', gap: '5px' }}>
-                                        {[10, 50, 100].map(amount => (
-                                            <button key={amount} onClick={() => handleStash(goals[0]?.id, amount)} style={{ background: '#1cb0f6', color: 'white', border: 'none', borderRadius: '8px', padding: '6px 12px', fontWeight: 'bold', cursor: 'pointer', fontSize: '0.75rem' }}>+${amount}</button>
-                                        ))}
+
+                                    <div style={styles.iconWrapper}>
+                                        💰
                                     </div>
+
                                 </div>
+
+                                <div style={styles.progressSection}>
+                                    <div style={styles.progressBar}>
+                                        <div
+                                            style={{
+                                                ...styles.progressFill,
+                                                width: '72%'
+                                            }}
+                                        />
+                                    </div>
+
+                                    <span style={styles.progressText}>
+                                        72% monthly target achieved
+                                    </span>
+                                </div>
+
                             </div>
+
+                            {/* GOALS CARD */}
+                            <div style={styles.gradientCardPurple}>
+
+                                <div style={styles.cardTop}>
+
+                                    <div>
+                                        <p style={styles.cardLabel}>
+                                            Active Goals
+                                        </p>
+
+                                        <h1 style={styles.cardValue}>
+                                            {goals.length}
+                                        </h1>
+                                    </div>
+
+                                    <div style={styles.iconWrapper}>
+                                        🎯
+                                    </div>
+
+                                </div>
+
+                                <p style={styles.cardDescription}>
+                                    Stay focused on your savings targets and
+                                    track milestones.
+                                </p>
+
+                            </div>
+
+                            {/* TRACKING CARD */}
+                            <div style={styles.gradientCardGreen}>
+
+                                <div style={styles.cardTop}>
+
+                                    <div>
+                                        <p style={styles.cardLabel}>
+                                            Spending Tracking
+                                        </p>
+
+                                        <h1 style={styles.cardValue}>
+                                            Healthy
+                                        </h1>
+                                    </div>
+
+                                    <div style={styles.iconWrapper}>
+                                        📊
+                                    </div>
+
+                                </div>
+
+                                <p style={styles.cardDescription}>
+                                    Weekly spending remains within your
+                                    recommended budget.
+                                </p>
+
+                            </div>
+
+                            {/* PERSONAL DEVELOPMENT */}
+                            <div style={styles.gradientCardOrange}>
+
+                                <div style={styles.cardTop}>
+
+                                    <div>
+                                        <p style={styles.cardLabel}>
+                                            Financial Growth
+                                        </p>
+
+                                        <h1 style={styles.cardValue}>
+                                            Level 4
+                                        </h1>
+                                    </div>
+
+                                    <div style={styles.iconWrapper}>
+                                        🚀
+                                    </div>
+
+                                </div>
+
+                                <p style={styles.cardDescription}>
+                                    You're building stronger financial habits
+                                    consistently.
+                                </p>
+
+                            </div>
+
                         </div>
-                        <div className="card-row" style={{ marginTop: '20px' }}>
-                            <LearningCard title="Quick Deposit" type="Action" description="Add funds instantly." action="Deposit" />
+
+                        {/* QUICK ACTIONS */}
+                        <div
+                            style={{
+                                marginTop: '32px'
+                            }}
+                        >
+
+                            <div
+                                style={{
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center',
+                                    marginBottom: '20px'
+                                }}
+                            >
+
+                                <h2
+                                    style={{
+                                        color: '#fff',
+                                        margin: 0,
+                                        fontSize: '24px',
+                                        fontWeight: '700'
+                                    }}
+                                >
+                                    Quick Actions
+                                </h2>
+
+                            </div>
+
+                            <div
+                                style={{
+                                    display: 'grid',
+                                    gridTemplateColumns:
+                                        'repeat(auto-fit, minmax(260px, 1fr))',
+                                    gap: '20px'
+                                }}
+                            >
+
+                                {/* QUICK DEPOSIT */}
+                                <div style={styles.gradientCardBlue}>
+
+                                    <div style={styles.cardTop}>
+
+                                        <div>
+
+                                            <p style={styles.cardLabel}>
+                                                Savings Deposit
+                                            </p>
+
+                                            <h1 style={styles.cardValue}>
+                                                Add Goal
+                                            </h1>
+
+                                        </div>
+
+                                        <div style={styles.iconWrapper}>
+                                            💳
+                                        </div>
+
+                                    </div>
+
+                                    <p style={styles.cardDescription}>
+                                        Instantly add funds to your active savings
+                                        goals and grow your balance faster.
+                                    </p>
+
+                                    <button style={styles.actionButton}
+                                    onClick={()=>{
+                                        setActiveTab('goals')
+                                        setGoalsView('form')
+                                    }}
+                                    >
+                                        Deposit Funds
+                                    </button>
+
+                                </div>
+
+                                {/* LEARNING */}
+                                <div style={styles.gradientCardGreen}>
+
+                                    <div style={styles.cardTop}>
+
+                                        <div>
+
+                                            <p style={styles.cardLabel}>
+                                                Financial Learning
+                                            </p>
+
+                                            <h1 style={styles.cardValue}>
+                                                Smart Tips
+                                            </h1>
+
+                                        </div>
+
+                                        <div style={styles.iconWrapper}>
+                                            📚
+                                        </div>
+
+                                    </div>
+
+                                    <p style={styles.cardDescription}>
+                                        Improve budgeting skills and develop
+                                        healthier financial habits daily.
+                                    </p>
+
+                                    <button style={styles.actionButton}
+                                    onClick={()=>{
+                                        setActiveTab('personal')
+                                    }}>
+                                        Start Learning
+                                    </button>
+
+                                </div>
+
+                                {/* GOAL BOOST */}
+                                <div style={styles.gradientCardOrange}>
+
+                                    <div style={styles.cardTop}>
+
+                                        <div>
+
+                                            <p style={styles.cardLabel}>
+                                                Goal Booster
+                                            </p>
+
+                                            <h1 style={styles.cardValue}>
+                                                Progress
+                                            </h1>
+
+                                        </div>
+
+                                        <div style={styles.iconWrapper}>
+                                            🚀
+                                        </div>
+
+                                    </div>
+
+                                    <p style={styles.cardDescription}>
+                                        Boost your savings goals with automatic
+                                        contributions and reminders.
+                                    </p>
+
+                                    <button style={styles.actionButton}
+                                    onClick={()=>{
+                                        setActiveTab('goals')
+                                        setGoalsView('progress')
+                                    }}>
+                                        Boost Goals
+                                    </button>
+
+                                </div>
+
+                            </div>
+
                         </div>
+
                     </div>
                 )}
 
@@ -283,18 +569,19 @@ const DashboardComponent = () => {
                         </div>
                     </div>
                 )}
+
                 {activeTab === 'goals' && (
                     <div className="goals-view-wrapper" style={{ width: '100%' }}>
                         {/* CENTERED NAVBAR (Laser Style) */}
                         <nav className="goals-nav-laser" style={{ display: 'flex', justifyContent: 'center', gap: '40px', borderBottom: '1px solid rgba(255,255,255,0.05)', marginBottom: '40px' }}>
-                            {['progress', 'form', 'list', 'card'].map((id) => (
+                            {['progress', 'form', 'list'].map((id) => (
                                 <button
                                     key={id}
                                     className={`laser-item ${goalsView === id ? 'active' : ''}`}
                                     onClick={() => setGoalsView(id)}
                                     style={{ background: 'none', border: 'none', color: goalsView === id ? 'white' : '#64748b', padding: '15px 0', cursor: 'pointer', fontWeight: 'bold', textTransform: 'uppercase', fontSize: '0.8rem' }}
                                 >
-                                    {id === 'progress' ? 'Progress' : id === 'form' ? 'Goals Form' : id === 'list' ? 'Goals List' : 'Goals Card'}
+                                    {id === 'progress' ? 'Progress' : id === 'form' ? 'Goals Form' : 'Goals List'}
                                 </button>
                             ))}
                         </nav>
@@ -450,28 +737,7 @@ const DashboardComponent = () => {
                                     height: 'auto'
                                 }}>
 
-                                    {/* 1. COMPACT QUICK ADD CARD */}
-                                    {/* <div
-                                        onClick={() => {
-                                            const newGoal = { id: Date.now(), title: "New Goal", current: 0, target: 5000 };
-                                            setGoals([...goals, newGoal]);
-                                        }}
-                                        style={{
-                                            background: 'rgba(255,255,255,0.02)',
-                                            borderRadius: '16px',
-                                            border: '2px dashed #6a11cb',
-                                            display: 'flex',
-                                            flexDirection: 'column',
-                                            justifyContent: 'center',
-                                            alignItems: 'center',
-                                            minHeight: '280px', // Reduced height to fit screen better
-                                            cursor: 'pointer',
-                                            transition: 'all 0.3s ease'
-                                        }}
-                                    >
-                                        <div style={{ fontSize: '2rem', color: '#6a11cb', marginBottom: '8px' }}>+</div>
-                                        <p style={{ color: '#6a11cb', fontWeight: 'bold', fontSize: '0.8rem', letterSpacing: '1px' }}>ADD NEW GOAL</p>
-                                    </div> */}
+
 
                                     {/* 2. DYNAMIC GOAL CARDS */}
                                     {goals.map((goal) => (
@@ -484,7 +750,14 @@ const DashboardComponent = () => {
                                             minHeight: '280px', // Reduced height
                                             overflow: 'hidden',
                                             boxShadow: '0 4px 15px rgba(0,0,0,0.4)'
-                                        }}>
+                                        }}
+                                            onClick={
+                                                () => {
+                                                    setGoalsView('card')
+                                                    setSelectedGoalId(goal.id)
+                                                }
+                                            }
+                                        >
                                             {/* Compact Purple Header */}
                                             <div style={{
                                                 background: 'linear-gradient(135deg, #6a11cb 0%, #2575fc 100%)',
@@ -636,7 +909,7 @@ const DashboardComponent = () => {
 
                                                 {/* QUICK ACTION BUTTON */}
                                                 <button
-                                                    onClick={() => updateGoal(activeGoal.id, 'current_amount', activeGoal.current_amount + 50)}
+                                                    onClick={() => handleStash(activeGoal.id, 50)}
                                                     style={{
                                                         width: '100%',
                                                         padding: '22px',
@@ -680,147 +953,565 @@ const DashboardComponent = () => {
                     </div>
 
                 )}
-              {activeTab === 'tracking' && (
-  <div className="tab-section-container">
-    <nav className="unified-glow-nav">
-      {['momentum', 'alerts', 'milestones', 'tracking'].map((tab) => (
-        <button
-          key={tab}
-          className={`glow-nav-item ${trackTab === tab ? 'active' : ''}`}
-          onClick={() => setTrackTab(tab)}
-        >
-          {tab.charAt(0).toUpperCase() + tab.slice(1)}
-          <span className="glow-indicator"></span>
-        </button>
-      ))}
-    </nav>
 
-    {/* 👇 ADD THIS PART HERE 👇 */}
-    <div className="tab-content">
-      {trackTab === 'alerts' && <Alerts />}
-      {trackTab === 'milestones' && <Milestones />}
-      {trackTab === 'tracking' && <TrackingPulse/>}
-      {trackTab === 'momentum' && <Momentum />}
-    </div>
-    
-  </div>
-)}
+                {activeTab === 'tracking' && (
+                    <div className="tab-section-container">
+                        <nav className="unified-glow-nav">
+                            {['momentum', 'alerts', 'milestones', 'tracking'].map((tab) => (
+                                <button
+                                    key={tab}
+                                    className={`glow-nav-item ${trackTab === tab ? 'active' : ''}`}
+                                    onClick={() => setTrackTab(tab)}
+                                >
+                                    {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                                    <span className="glow-indicator"></span>
+                                </button>
+                            ))}
+                        </nav>
 
+                        {/* 👇 ADD THIS PART HERE 👇 */}
+                        <div className="tab-content">
+                            {trackTab === 'alerts' && <Alerts />}
+                            {trackTab === 'milestones' && <Milestones />}
+                            {trackTab === 'tracking' && <TrackingPulse />}
+                            {trackTab === 'momentum' && <Momentum />}
+                        </div>
 
-    {activeTab === 'personal' && (
-  <div style={{ marginTop: '20px', width: '100%' }}>
-    
-    {/* FLAT UNDERLINED NAVBAR */}
-    <div style={{ 
-      display: 'flex', 
-      justifyContent: 'center', 
-      gap: '40px', 
-      marginBottom: '30px',
-      borderBottom: '1px solid rgba(255, 255, 255, 0.1)', 
-      paddingBottom: '10px'
-    }}>
-      {['podcasts', 'lessons', 'advice'].map((tab) => (
-        <div key={tab} style={{ position: 'relative' }}>
-          <button
-            onClick={() => setDevTab(tab)}
-            style={{
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              fontSize: '15px',
-              padding: '8px 5px',
-              transition: 'all 0.3s ease',
-              color: devTab === tab ? '#ffffff' : '#64748b',
-              fontWeight: devTab === tab ? '600' : '400',
-              outline: 'none',
-              textTransform: 'capitalize'
-            }}
-          >
-            {/* Displaying friendly names for the tabs */}
-            {tab === 'advice' ? 'Quick Advice' : tab}
-          </button>
-          
-          {/* Glowing Underline Indicator */}
-          {devTab === tab && (
-            <div style={{
-              position: 'absolute',
-              bottom: '-11px',
-              left: 0,
-              right: 0,
-              height: '2px',
-              backgroundColor: '#3b82f6',
-              boxShadow: '0px 0px 10px #3b82f6',
-              borderRadius: '2px'
-            }} />
-          )}
-        </div>
-      ))}
-    </div>
-
-    {/* CONTENT AREA */}
-   <div className="content-area">
-  {devTab === 'podcasts' && (
-    <LearningCard 
-      type="PODCAST" 
-      title="The Wealth Mindset" 
-      description="Learn how the top 1% think about saving." 
-      action="Listen Now" 
-    />
-  )}
-
-  {devTab === 'lessons' && (
-  <div style={{ display: 'flex', flexDirection: 'column' }}>
-    <LearningCard 
-      type="BUDGETING" 
-      title="The 50/30/20 Rule" 
-      description="The gold standard for effortless budgeting. Learn how to split your income without feeling restricted." 
-      action="Start Lesson" 
-    />
-    
-    <LearningCard 
-      type="SAVING" 
-      title="Saving Strategies" 
-      description="From 'Round-ups' to 'Save-first' methods. Find the psychological trick that works for your personality." 
-      action="View Strategy" 
-    />
-    
-    <LearningCard 
-      type="INVESTING" 
-      title="Beginner Investing" 
-      description="Don't let the jargon scare you. Learn how to buy your first asset and start your compound interest journey." 
-      action="Explore Basics" 
-    />
-  </div>
-)}
-
-  {devTab === 'advice' && (
-    <LearningCard 
-      type="QUICK ADVICE" 
-      title="Emergency Fund 101" 
-      description="Why you need 3 months of expenses saved today." 
-      action="Get Tip" 
-    />
-  )}
-</div>
-  </div>
-)}
-
-                {activeTab === 'zeni' && (
-                    <div style={{ height: '80vh', background: 'rgba(19, 31, 36, 0.8)', borderRadius: '24px', padding: '30px' }}>
-                        <ZeniBot goals={goals} totalSaved={goals.reduce((a, b) => a + b.current_amount, 0)} />
                     </div>
                 )}
+
+                {activeTab === 'personal' && (
+                    <div style={{ marginTop: '20px', width: '100%' }}>
+
+                        {/* FLAT UNDERLINED NAVBAR */}
+                        <div style={{
+                            display: 'flex',
+                            justifyContent: 'center',
+                            gap: '40px',
+                            marginBottom: '30px',
+                            borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+                            paddingBottom: '10px'
+                        }}>
+                            {['podcasts', 'lessons', 'advice'].map((tab) => (
+                                <div key={tab} style={{ position: 'relative' }}>
+                                    <button
+                                        onClick={() => setDevTab(tab)}
+                                        style={{
+                                            background: 'none',
+                                            border: 'none',
+                                            cursor: 'pointer',
+                                            fontSize: '15px',
+                                            padding: '8px 5px',
+                                            transition: 'all 0.3s ease',
+                                            color: devTab === tab ? '#ffffff' : '#64748b',
+                                            fontWeight: devTab === tab ? '600' : '400',
+                                            outline: 'none',
+                                            textTransform: 'capitalize'
+                                        }}
+                                    >
+                                        {/* Displaying friendly names for the tabs */}
+                                        {tab === 'advice' ? 'Quick Advice' : tab}
+                                    </button>
+
+                                    {/* Glowing Underline Indicator */}
+                                    {devTab === tab && (
+                                        <div style={{
+                                            position: 'absolute',
+                                            bottom: '-11px',
+                                            left: 0,
+                                            right: 0,
+                                            height: '2px',
+                                            backgroundColor: '#3b82f6',
+                                            boxShadow: '0px 0px 10px #3b82f6',
+                                            borderRadius: '2px'
+                                        }} />
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* CONTENT AREA */}
+                        <div className="content-area">
+                            {devTab === 'podcasts' && (
+                                <div style={{
+                                    display: 'grid',
+                                    gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+                                    gap: '20px',
+                                    padding: '20px'
+                                }}>
+                                    {/* 01: WEALTH MINDSET */}
+                                    <PodcastCard
+                                        index="01"
+                                        type="PODCAST"
+                                        image="unsplash2.jpg"
+                                        title="Faith & Finance"
+                                        onClick={setOpen}
+                                        description="Money mananagement & values."
+                                        action="Pay to listen"
+                                    />
+
+                                    {/* 02: MARKET DAILY */}
+                                    <PodcastCard
+                                        index="02"
+                                        type="Break the Bank"
+                                        image="unsplash1.jpg"
+                                        title="Market Daily"
+                                        onClick={setOpen}
+                                        description="Modern banking and fintech innovation discussion."
+                                        action="pay to listen"
+                                    />
+
+                                    {/* 03: DEBT FREE JOURNEY */}
+                                    <PodcastCard
+                                        index="03"
+                                        type="DEBT"
+                                        image="unsplash3.jpg"
+                                        onClick={setOpen}
+                                        title="The Debt-Free Path"
+                                        description="Real stories from people who paid off thousands in record time."
+                                        action="pay to listen"
+                                    />
+                                      <PodcastCard
+                                        index="03"
+                                        type="DEBT"
+                                        image="unsplash4.jpg"
+                                        onClick={setOpen}
+                                        title="The Ten Minute Rule"
+                                        description="Real stories from people who paid off thousands in record time."
+                                        action="pay to listen"
+                                    />
+                                     <PodcastCard
+                                        index="03"
+                                        type="DEBT"
+                                        image="unsplash5.jpg"
+                                        onClick={setOpen}
+                                        title="The Diary Of A CEO"
+                                        description="Business leadership and financial management."
+                                        action="pay to listen"
+                                    />
+                                     <PodcastCard
+                                        index="03"
+                                        type="DEBT"
+                                        image="unsplash9.jpg"
+                                        onClick={setOpen}
+                                        title="Planet Money"
+                                        description="Simple explanations about money and the economy."
+                                        action="pay to listen"
+                                    />
+                                     <PodcastCard
+                                        index="03"
+                                        type="DEBT"
+                                        image="unsplash6.jpg"
+                                        onClick={setOpen}
+                                        title="What The Finance"
+                                        description="Financ topics explained simply for beginners."
+                                        action="pay to listen"
+                                    />
+                                     <PodcastCard
+                                        index="03"
+                                        type="Money Talks"
+                                        image="unsplash7.jpg"
+                                        onClick={setOpen}
+                                        title="Money Talks "
+                                        description="Easy Personal finance and saving discussions."
+                                        action="pay to listen"
+                                    />
+                                     <PodcastCard
+                                        index="03"
+                                        type="Investors Podcast"
+                                        image="unsplash8.jpg"
+                                        onClick={setOpen}
+                                        title="Investors Podcast"
+                                        description="Learn investing and wealth-building strategies."
+                                        action="pay to listen"
+                                    />
+                                 
+                                    
+                                </div>
+                            )}
+
+                            {devTab === 'lessons' && (
+                                <div style={{
+                                    display: 'grid',
+                                    gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+                                    gap: '20px',
+                                    padding: '20px'
+                                }}>
+                                    {/* 01: BUDGETING */}
+                                    <LearningCard
+                                        index="01"
+                                        type="BUDGETING"
+                                        title="Budgeting Basics"
+                                        description="Learn how to create a budget and manage your money effectively."
+                                        action="Start Lesson"
+                                    />
+
+                                    {/* 02: SAVING */}
+                                    <LearningCard
+                                        index="02"
+                                        type="SAVING"
+                                        title="Saving Money"
+                                        description="Discover simple strategies to save more and build good habits."
+                                        action="Start Lesson"
+                                    />
+
+                                    {/* 03: INVESTING */}
+                                    <LearningCard
+                                        index="03"
+                                        type="INVESTING"
+                                        title="Beginner Investing"
+                                        description="Understand the basics of investing and grow your wealth over time."
+                                        action="Start Lesson"
+                                    />
+
+                                    {/* 04: SPENDING */}
+                                    <LearningCard
+                                        index="04"
+                                        type="SPENDING"
+                                        title="Smart Spending"
+                                        description="Learn how to spend wisely and avoid unnecessary expenses."
+                                        action="Start Lesson"
+                                    />
+
+                                    {/* 05: GOALS */}
+                                    <LearningCard
+                                        index="05"
+                                        type="GOALS"
+                                        title="Financial Goal Setting"
+                                        description="Set clear financial goals and create a plan to achieve them."
+                                        action="Start Lesson"
+                                    />
+
+                                    {/* 06: DEBT */}
+                                    <LearningCard
+                                        index="06"
+                                        type="DEBT"
+                                        title="Debt Management"
+                                        description="Learn how to manage debt responsibly and become debt-free faster."
+                                        action="Start Lesson"
+                                    />
+
+                                    {/* 07: MINDSET */}
+                                    <LearningCard
+                                        index="07"
+                                        type="MINDSET"
+                                        title="Financial Discipline"
+                                        description="Build discipline and consistency for long-term financial success."
+                                        action="Start Lesson"
+                                    />
+
+                                    {/* 08: EMERGENCY */}
+                                    <LearningCard
+                                        index="08"
+                                        type="SAVING"
+                                        title="Emergency Funds"
+                                        description="Understand why an emergency fund is essential and how to build one."
+                                        action="Start Lesson"
+                                    />
+
+                                    {/* 09: ANALYSIS */}
+                                    <LearningCard
+                                        index="09"
+                                        type="BUDGETING"
+                                        title="Understanding Expenses"
+                                        description="Track, analyze, and control your expenses like a pro."
+                                        action="Start Lesson"
+                                    />
+
+                                    {/* 10: FREEDOM */}
+                                    <LearningCard
+                                        index="10"
+                                        type="FREEDOM"
+                                        title="Financial Freedom"
+                                        description="Learn the steps to achieve financial freedom and live life on your terms."
+                                        action="Start Lesson"
+                                    />
+                                </div>
+                            )}
+
+                            {devTab === 'advice' && (
+                                <div style={{
+                                    display: 'grid',
+                                    gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+                                    gap: '20px',
+                                    padding: '20px'
+                                }}>
+                                    {/* 01: EMERGENCY FUND */}
+                                    <LearningCard
+                                        index="01"
+                                        type="QUICK ADVICE"
+                                        title="Emergency Fund 101"
+                                        description="Why you need 3-6 months of expenses saved and where to keep it."
+                                        action="Get Tip"
+                                    />
+
+                                    {/* 02: THE 50/30/20 RULE */}
+                                    <LearningCard
+                                        index="02"
+                                        type="BUDGETING"
+                                        title="The 50/30/20 Rule"
+                                        description="A simple framework: 50% Needs, 30% Wants, and 20% Savings."
+                                        action="Get Tip"
+                                    />
+
+                                    {/* 03: HIGH-YIELD SAVINGS */}
+                                    <LearningCard
+                                        index="03"
+                                        type="SAVING"
+                                        title="High-Yield Accounts"
+                                        description="Stop leaving money in low-interest accounts. Make your cash work."
+                                        action="Get Tip"
+                                    />
+
+                                    {/* 04: AVOID LIFESTYLE CREEP */}
+                                    <LearningCard
+                                        index="04"
+                                        type="MINDSET"
+                                        title="Lifestyle Creep"
+                                        description="How to keep your expenses steady even when your income increases."
+                                        action="Get Tip"
+                                    />
+
+                                    {/* 05: CREDIT SCORE BOOST */}
+                                    <LearningCard
+                                        index="05"
+                                        type="DEBT"
+                                        title="Credit Score Basics"
+                                        description="Quick ways to improve your score and lower your future interest rates."
+                                        action="Get Tip"
+                                    />
+
+                                    {/* 06: AUTOMATE SAVINGS */}
+                                    <LearningCard
+                                        index="06"
+                                        type="SAVING"
+                                        title="Set It and Forget It"
+                                        description="The power of automating transfers so you save before you spend."
+                                        action="Get Tip"
+                                    />
+
+                                    {/* 07: COMPOUND INTEREST */}
+                                    <LearningCard
+                                        index="07"
+                                        type="INVESTING"
+                                        title="Compound Interest"
+                                        description="See why starting today is more important than the amount you start with."
+                                        action="Get Tip"
+                                    />
+
+                                    {/* 08: SUBSCRIPTION CLEANUP */}
+                                    <LearningCard
+                                        index="08"
+                                        type="SPENDING"
+                                        title="Subscription Audit"
+                                        description="Find and cancel those recurring charges you no longer use."
+                                        action="Get Tip"
+                                    />
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                )}
+
+
+
+                {activeTab === 'zeni' && (
+                    <div style={{ height: '90vh', background: 'rgba(19, 31, 36, 0.8)', borderRadius: '24px', padding: '10px' }}>
+                        <ZeniBot goals={goals} totalSaved={goals.reduce((a, b) => a + b.current_amount, 0)} />
+
+                    </div>
+                )}
+
+                {activeTab === 'profile' && (
+                    <UserProfile user={user} />
+                )}
+                {activeTab === 'about' && (
+    <div className="about-page-container" style={{ padding: '20px', color: 'white' }}>
+        <AboutUs />
+    </div>
+)}
+
+                <MpesaModal
+                    isOpen={open}
+                    onClose={() => setOpen(false)}
+                />
+                {/* Independent About Us Tab - Only renders when activeTab is 'about' */}
+
             </main>
 
             <div style={{ position: 'fixed', bottom: '30px', right: '30px', cursor: 'pointer', zIndex: 1000 }} onClick={() => setActiveTab('zeni')}>
                 <div style={{ width: '60px', height: '60px', borderRadius: '50%', background: '#1cb0f6', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 8px 16px rgba(0,0,0,0.3)' }}><span style={{ fontSize: '1.5rem' }}>💬</span></div>
             </div>
+            
         </div>
+        
     )
 }
 const footerItemStyle = { display: 'flex', alignItems: 'center', gap: '12px', color: '#94a3b8', fontSize: '0.95rem', cursor: 'pointer' };
 const iconStyle = { fontSize: '1.2rem' };
-const infoIconStyle = { cursor: 'pointer', fontSize: '0.6rem', background: '#37464f', width: '14px', height: '14px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#1cb0f6', border: '1px solid #1cb0f6' };
 
+
+const styles = {
+
+    cardTop: {
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'flex-start'
+    },
+
+    cardLabel: {
+        color: 'rgba(255,255,255,0.7)',
+        fontSize: '14px',
+        marginBottom: '10px'
+    },
+
+    cardValue: {
+        color: '#fff',
+        margin: 0,
+        fontSize: '32px',
+        fontWeight: '700'
+    },
+
+    cardDescription: {
+        color: 'rgba(255,255,255,0.75)',
+        lineHeight: 1.6,
+        fontSize: '14px',
+        marginTop: '20px'
+    },
+
+    iconWrapper: {
+        width: '60px',
+        height: '60px',
+
+        borderRadius: '18px',
+
+        background: 'rgba(255,255,255,0.12)',
+
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+
+        fontSize: '26px',
+
+        backdropFilter: 'blur(10px)'
+    },
+
+    gradientCardBlue: {
+        padding: '26px',
+        borderRadius: '28px',
+
+        background:
+            'linear-gradient(135deg,#2563eb,#1e40af)',
+
+        boxShadow:
+            '0 15px 40px rgba(37,99,235,0.25)',
+
+        border:
+            '1px solid rgba(255,255,255,0.08)'
+    },
+
+    gradientCardPurple: {
+        padding: '26px',
+        borderRadius: '28px',
+
+        background:
+            'linear-gradient(135deg,#7c3aed,#4c1d95)',
+
+        boxShadow:
+            '0 15px 40px rgba(124,58,237,0.25)',
+
+        border:
+            '1px solid rgba(255,255,255,0.08)'
+    },
+
+    gradientCardGreen: {
+        padding: '26px',
+        borderRadius: '28px',
+
+        background:
+            'linear-gradient(135deg,#10b981,#065f46)',
+
+        boxShadow:
+            '0 15px 40px rgba(16,185,129,0.25)',
+
+        border:
+            '1px solid rgba(255,255,255,0.08)'
+    },
+
+    gradientCardOrange: {
+        padding: '26px',
+        borderRadius: '28px',
+
+        background:
+            'linear-gradient(135deg,#f59e0b,#b45309)',
+
+        boxShadow:
+            '0 15px 40px rgba(245,158,11,0.25)',
+
+        border:
+            '1px solid rgba(255,255,255,0.08)'
+    },
+
+    progressSection: {
+        marginTop: '24px'
+    },
+
+    progressBar: {
+        width: '100%',
+        height: '10px',
+
+        background:
+            'rgba(255,255,255,0.15)',
+
+        borderRadius: '999px',
+
+        overflow: 'hidden'
+    },
+
+    progressFill: {
+        height: '100%',
+
+        borderRadius: '999px',
+
+        background:
+            'linear-gradient(90deg,#fff,#cbd5e1)'
+    },
+
+    progressText: {
+        display: 'block',
+
+        marginTop: '10px',
+
+        color: 'rgba(255,255,255,0.8)',
+
+        fontSize: '13px'
+    },
+
+    actionButton: {
+        marginTop: '24px',
+
+        width: '100%',
+
+        padding: '14px',
+
+        border: 'none',
+
+        borderRadius: '16px',
+
+        background: 'rgba(255,255,255,0.14)',
+
+        color: '#fff',
+
+        fontWeight: '600',
+
+        fontSize: '14px',
+
+        cursor: 'pointer',
+
+        backdropFilter: 'blur(10px)',
+
+        transition: '0.3s ease'
+    },
+};
 
 export default DashboardComponent

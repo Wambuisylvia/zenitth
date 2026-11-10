@@ -32,7 +32,7 @@ const Login = ({ onLogin }) => {
       user_data.append("email", email)
       user_data.append("password", password)
 
-      let response = await axios.post("http://127.0.0.1:5000/api/signin", user_data)
+      let response = await axios.post("https://sylviawambuu.alwaysdata.net/api/signin", user_data)
       console.log(response)
       if (response.data.user) {
         localStorage.setItem("user", JSON.stringify(response.data.user))

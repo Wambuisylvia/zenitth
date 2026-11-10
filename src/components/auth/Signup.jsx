@@ -23,12 +23,12 @@ const Signup = () => {
   user_data.append("email", email)
   user_data.append("username",username)
   user_data.append("password",password)
-  user_data.append("firstName",firstName)
-  user_data.append("lastName",lastName)
+  user_data.append("first_name",firstName)
+  user_data.append("last_name",lastName)
 
   try {
     const response = await axios.post(
-      "http://127.0.0.1:5000/api/signup", 
+      "https://sylviawambuu.alwaysdata.net/api/signup", 
       user_data // Send the object directly
     );
     console.log(response)

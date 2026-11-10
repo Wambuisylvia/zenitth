@@ -12,6 +12,7 @@ import GoalsForm from './components/goals/GoalsForm';
 import GoalsList from './components/goals/GoalsList';
 import { Route, BrowserRouter as Router, Routes, useNavigate } from 'react-router-dom';
 import Home from './components/Home';
+import AboutUs from './components/AboutUs';
 
 
 
@@ -26,6 +27,7 @@ function App() {
         <Route path='/' element={<DashboardComponent/>} />
         <Route path='/signup' element={<Signup/>} />
         <Route path='/home' element={<Home/>} />
+        <Route path='/about' element={<AboutUs/>} />
 
       </Routes>
     </Router>

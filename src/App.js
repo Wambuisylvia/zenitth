@@ -1,16 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import './App.css';
-import SavingCard from './components/savings/SavingCard'; 
-import Login from './components/auth/Login'
+import Login from './components/auth/Login';
 import Signup from './components/auth/Signup';
 import DashboardComponent from './components/dashboard/DashboardComponent';
-
-// IMPORT YOUR NEW GOALS COMPONENTS
-import Progress from './components/goals/Progress';
-import GoalsCard from './components/goals/GoalsCard';
-import GoalsForm from './components/goals/GoalsForm';
-import GoalsList from './components/goals/GoalsList';
-import { Route, BrowserRouter as Router, Routes, useNavigate } from 'react-router-dom';
+import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import Home from './components/Home';
 import AboutUs from './components/AboutUs';
 

@@ -3,7 +3,7 @@
 import LearningCard from './../learning/LearningCard';
 import TrackingPulse from './../tracking/TrackingPulse';
 import SavingCard from './../savings/SavingCard';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import Progress from './../goals/Progress';
 // import GoalsCard from './../goals/GoalsCard';
 // import GoalsForm from './../goals/GoalsForm';
@@ -58,10 +58,10 @@ const DashboardComponent = () => {
     }, [])
 
     // function to fetch goals
-    const getGoals = async () => {
+    const getGoals = useCallback(async () => {
         // console.log(user.id)
         try {
-            if (user) {
+            if (user && user.id) {
                 const response = await axios.get(`https://sylviawambuu.alwaysdata.net/api/goals/${user.id}`)
                 // console.log(response)
                 if (response.status === 200) {
@@ -71,13 +71,13 @@ const DashboardComponent = () => {
         } catch (error) {
 
         }
-    }
+    }, [user])
     // console.log(goals)
 
     // useEffect to fetch goas from db
     useEffect(() => {
         getGoals()
-    }, [user])
+    }, [getGoals])
 
 
     // Add this effect alongside your existing useEffect

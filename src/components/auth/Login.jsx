@@ -18,12 +18,13 @@ const Login = ({ onLogin }) => {
     e.preventDefault();
     setLoading("please wait.......")
     setError("")
+    setSuccess("")
     
 
     try {
       const user_data = new FormData()
 
-      if (email == "" || password == "") {
+      if (email === "" || password === "") {
         setError("Enter all values")
         setLoading(false)
         return
@@ -35,6 +36,7 @@ const Login = ({ onLogin }) => {
       let response = await axios.post("https://sylviawambuu.alwaysdata.net/api/signin", user_data)
       console.log(response)
       if (response.data.user) {
+        setSuccess("Login successful!")
         localStorage.setItem("user", JSON.stringify(response.data.user))
         navigate("/")
 
